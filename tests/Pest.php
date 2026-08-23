@@ -93,7 +93,7 @@ final readonly class TestViewSandbox
             mkdir($root, 0755, true);
         }
 
-        return new self($root);
+        return new self(realpath($root) ?: $root);
     }
 
     public static function makeInSystemTemp(string $prefix = 'sheath-test-'): self
@@ -103,7 +103,7 @@ final readonly class TestViewSandbox
             mkdir($root, 0755, true);
         }
 
-        return new self($root);
+        return new self(realpath($root) ?: $root);
     }
 
     public static function makeWithEmails(): self

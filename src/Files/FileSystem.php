@@ -38,6 +38,13 @@ final class FileSystem
             $path = $target;
         }
 
+        if (is_file($path)) {
+            $permissions = @fileperms($path);
+            if (($permissions !== false && ($permissions & 0222) === 0) || ! is_writable($path)) {
+                return false;
+            }
+        }
+
         $directory = dirname($path);
         if (! is_dir($directory)) {
             return false;
