@@ -1,0 +1,1 @@
+<div>emails/welcome</div>

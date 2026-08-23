@@ -1,0 +1,67 @@
+name: Report a bug
+description: Tell us about an incorrect finding, missed issue, or autofix problem.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Sheath. A small Blade example helps us
+        investigate the problem quickly.
+
+  - type: textarea
+    id: blade
+    attributes:
+      label: Blade example
+      description: Share the smallest template that still shows the problem.
+      render: blade
+      placeholder: |
+        <img src="{{ $post->image }}">
+    validations:
+      required: true
+
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID
+      description: Add the rule ID if you know it.
+      placeholder: a11y-alt-text
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What happened?
+      description: Tell us what you expected and what Sheath did instead.
+      placeholder: |
+        Expected: no finding, the alt is set on the wrapping component.
+        Actual: reported a11y-alt-text at 1:1.
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: Include the `preset` and relevant `rules` entries. Leave blank if you use the defaults.
+      render: php
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: Share your PHP, Laravel, Forte, and Sheath versions.
+      render: text
+      placeholder: |
+        PHP 8.3
+        Laravel 12
+        fortephp/forte 1.1
+        fortephp/sheath 1.0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: autofix
+    attributes:
+      label: Autofix
+      options:
+        - label: This happened while using `--fix`
+        - label: I also used `--dangerous`

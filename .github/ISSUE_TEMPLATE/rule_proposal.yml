@@ -1,0 +1,59 @@
+name: Rule proposal
+description: Suggest a new rule or an improvement to an existing rule.
+labels: [rule proposal]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Examples of what should and should not be reported
+        help us understand the rule's intended behavior.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What should the rule catch?
+      description: Describe the problem or inconsistency.
+    validations:
+      required: true
+
+  - type: textarea
+    id: bad
+    attributes:
+      label: Example that should be reported
+      render: blade
+    validations:
+      required: true
+
+  - type: textarea
+    id: good
+    attributes:
+      label: Example that should not be reported
+      description: Use a similar example if possible.
+      render: blade
+    validations:
+      required: true
+
+  - type: dropdown
+    id: preset
+    attributes:
+      label: Suggested preset
+      options:
+        - recommended - broadly useful and low-noise
+        - strict - useful but more opinionated
+        - stylistic - a style preference
+        - migration - a one-time modernization
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: fixable
+    attributes:
+      label: Autofix
+      options:
+        - Yes - safe rewrite
+        - Yes - could change rendered output
+        - 'No'
+        - Not sure
+    validations:
+      required: true

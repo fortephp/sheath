@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://fortephp.com/docs/sheath/v1/getting-started
+    about: Read the rule reference and guides for configuration, autofix, and CI.
+  - name: Security issue
+    url: https://github.com/fortephp/sheath/security/advisories/new
+    about: Privately report a security vulnerability.
