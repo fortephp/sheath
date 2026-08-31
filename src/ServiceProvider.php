@@ -10,6 +10,7 @@ use Forte\Sheath\Caching\ResultCache;
 use Forte\Sheath\Configuration\PackagePresets;
 use Forte\Sheath\Console\EditorCommand;
 use Forte\Sheath\Console\LintCommand;
+use Forte\Sheath\Console\SupportCommand;
 use Forte\Sheath\Console\WorkerCommand;
 use Forte\Sheath\Files\FileFinder;
 use Forte\Sheath\Packages\Dependencies;
@@ -177,6 +178,7 @@ class ServiceProvider extends BaseServiceProvider
             $this->commands([
                 EditorCommand::class,
                 LintCommand::class,
+                SupportCommand::class,
                 WorkerCommand::class,
             ]);
         }

@@ -25,6 +25,7 @@ use Forte\Sheath\Files\FileSystem;
 use Forte\Sheath\Files\PathResolver;
 use Forte\Sheath\Fixer;
 use Forte\Sheath\Linter;
+use Forte\Sheath\Packages\InstalledPackageVersion;
 use Forte\Sheath\Parallel\Config as ParallelConfig;
 use Forte\Sheath\Parallel\ParallelProcessingException;
 use Forte\Sheath\Parallel\Runner;
@@ -1275,7 +1276,7 @@ class LintCommand extends Command
             'parser' => $this->parserCacheContext(),
             'ignoredRegionProviders' => $this->ignoredRegionProviderCacheContexts(),
             'dependencies' => $this->installedPackageContexts(),
-            'version' => $this->getPackageVersion(),
+            'version' => InstalledPackageVersion::describe(self::PACKAGE_NAME),
         ];
     }
 
@@ -1489,32 +1490,5 @@ class LintCommand extends Command
         }
 
         return $contexts;
-    }
-
-    protected function getPackageVersion(): string
-    {
-        if (! class_exists(InstalledVersions::class)) {
-            return 'unknown';
-        }
-
-        try {
-            if (! InstalledVersions::isInstalled(self::PACKAGE_NAME)) {
-                return 'unknown';
-            }
-
-            $version = InstalledVersions::getPrettyVersion(self::PACKAGE_NAME)
-                ?? InstalledVersions::getVersion(self::PACKAGE_NAME);
-            $reference = InstalledVersions::getReference(self::PACKAGE_NAME);
-        } catch (OutOfBoundsException) {
-            return 'unknown';
-        }
-
-        if (! is_string($version) || $version === '') {
-            return 'unknown';
-        }
-
-        return is_string($reference) && $reference !== ''
-            ? $version.'@'.$reference
-            : $version;
     }
 }

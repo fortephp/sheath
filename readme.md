@@ -96,6 +96,17 @@ php artisan sheath:lint --format=github --max-warnings=0 --no-inline-config
 
 Other available formats include `json`, `checkstyle`, `unix`, and `compact`.
 
+### Report a problem
+
+Include the output of `sheath:support` in bug reports. It lists the Sheath,
+PHP, Laravel, and Forte versions, the active configuration, and whether
+parallel linting is available, without printing any template source:
+
+```bash
+php artisan sheath:support
+php artisan sheath:support --json
+```
+
 ## Configuration
 
 Choose a preset, then override only the rules your project needs to handle
