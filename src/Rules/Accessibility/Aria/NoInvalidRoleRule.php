@@ -119,9 +119,7 @@ class NoInvalidRoleRule extends AbstractRule
         /** @var array<string, true>|null $roles */
         static $roles;
 
-        if ($roles === null) {
-            $roles = array_fill_keys(AriaData::validRoles(), true);
-        }
+        $roles ??= array_fill_keys(AriaData::validRoles(), true);
 
         return isset($roles[$role]);
     }

@@ -79,9 +79,7 @@ class NoInlineJsRule extends AbstractRule
         /** @var array<string, true>|null $handlers */
         static $handlers;
 
-        if ($handlers === null) {
-            $handlers = array_fill_keys(JsonResource::stringList('html/event-handler-attributes.json'), true);
-        }
+        $handlers ??= array_fill_keys(JsonResource::stringList('html/event-handler-attributes.json'), true);
 
         return isset($handlers[$attribute]);
     }
