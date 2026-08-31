@@ -352,9 +352,7 @@ trait DetectsExclusiveBranches
         }
 
         $parentId = spl_object_id($parent);
-        if (! isset($switches[$parentId])) {
-            $switches[$parentId] = $this->indexSwitchBranches($parent);
-        }
+        $switches[$parentId] ??= $this->indexSwitchBranches($parent);
 
         $switch = $switches[$parentId];
         $earlierPosition = $switch['positions'][$earlier->index()] ?? null;
@@ -398,9 +396,7 @@ trait DetectsExclusiveBranches
             }
 
             $switchId = $parentId;
-            if (! isset($switches[$parentId])) {
-                $switches[$parentId] = $this->indexSwitchBranches($parent);
-            }
+            $switches[$parentId] ??= $this->indexSwitchBranches($parent);
 
             $segment = $switches[$parentId]['segments'][$branch->index()] ?? null;
             if ($segment === null) {
