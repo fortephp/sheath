@@ -279,11 +279,12 @@ it('reports parse errors and exits non-zero', function (): void {
 
 it('reports parser depth limits and continues linting later files', function (): void {
     withSandbox(function (TestViewSandbox $sandbox): void {
-        $sandbox->file('a-deep.blade.php', str_repeat('<div>', 2048).str_repeat('</div>', 2048));
-        $sandbox->file('z-later.blade.php', '<img src="later.jpg">');
+        $deepFile = $sandbox->file('a-deep.blade.php', str_repeat('<div>', 2048).str_repeat('</div>', 2048));
+        $laterFile = $sandbox->file('z-later.blade.php', '<img src="later.jpg">');
 
         $status = Artisan::call('sheath:lint', [
-            'paths' => [$sandbox->root],
+            // Exercise recovery in this order, independently of directory traversal order.
+            'paths' => [$deepFile, $laterFile],
             '--only' => 'a11y-alt-text',
             '--format' => 'json',
         ]);
