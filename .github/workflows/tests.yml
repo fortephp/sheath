@@ -60,6 +60,14 @@ jobs:
             testbench: 10.*
           - laravel: 13.*
             testbench: 11.*
+          # Explicitly exercise Finder 8 so dependency resolution cannot
+          # silently leave this compatibility coverage on Finder 7.
+          - php: 8.4
+            laravel: 13.*
+            stability: prefer-stable
+            os: ubuntu-latest
+            testbench: 11.*
+            finder: 8.*
           # One Windows job: enough to catch path-separator and encoding
           # regressions without doubling the matrix.
           - php: 8.4
@@ -71,7 +79,7 @@ jobs:
           - php: 8.2
             laravel: 13.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }} - Finder ${{ matrix.finder || 'auto' }}
 
     steps:
       - name: Update apt sources
@@ -93,6 +101,10 @@ jobs:
       - name: Set framework constraints
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+
+      - name: Set Finder constraint
+        if: matrix.finder != ''
+        run: composer require "symfony/finder:${{ matrix.finder }}" --no-interaction --no-update
 
       - name: Install dependencies
         uses: nick-invision/retry@v3
