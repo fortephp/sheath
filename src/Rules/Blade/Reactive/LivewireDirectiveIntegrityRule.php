@@ -267,7 +267,7 @@ final class LivewireDirectiveIntegrityRule extends AbstractReactiveRule
             $this->isDirective($attribute, 'wire:sort:ignore') => [[], ReactiveAttributeSemantics::directiveName($attribute)],
             $this->isDirective($attribute, 'wire:target') => [['except'], 'wire:target'],
             $this->isDirective($attribute, 'wire:text') => [[], 'wire:text'],
-            $this->isDirective($attribute, 'wire:transition') => [[], 'wire:transition'],
+            $this->isDirective($attribute, 'wire:transition') => [['navigate'], 'wire:transition'],
             $this->isDirective($attribute, 'wire:stream') => [['replace'], 'wire:stream'],
             default => null,
         };
@@ -371,6 +371,8 @@ final class LivewireDirectiveIntegrityRule extends AbstractReactiveRule
                 && in_array('append', $modifiers, true) => 'wire:island.prepend and wire:island.append cannot be combined.',
             $this->isDirective($attribute, 'wire:stream')
                 && count(array_keys($modifiers, 'replace', true)) > 1 => 'wire:stream accepts .replace only once.',
+            $this->isDirective($attribute, 'wire:transition')
+                && count(array_keys($modifiers, 'navigate', true)) > 1 => 'wire:transition accepts .navigate only once.',
             $this->isDirective($attribute, 'wire:loading') => $this->toggleModifierProblem($attribute, true),
             $this->isDirective($attribute, 'wire:dirty'),
             $this->isDirective($attribute, 'wire:offline') => $this->toggleModifierProblem($attribute, false),

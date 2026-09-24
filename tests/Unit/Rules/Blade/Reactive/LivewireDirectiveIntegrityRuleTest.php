@@ -38,6 +38,7 @@ it('accepts valid Livewire directive contracts', function (string $source): void
     'renderless live model' => '<input wire:model.renderless.live="search">',
     'preserved-scroll live model' => '<input wire:model.live.preserve-scroll="search">',
     'navigate modifiers' => '<a href="/docs" wire:navigate.hover.preserve-scroll>Docs</a>',
+    'navigate transition' => '<header wire:transition.navigate="header"></header>',
     'current modifiers' => '<a href="/docs" wire:current.exact.strict="font-bold">Docs</a>',
     'show modifier' => '<div wire:show.important="open"></div>',
     'ignore modifier' => '<div wire:ignore.children></div>',
@@ -123,6 +124,7 @@ it('reports deterministic modifier conflicts and incomplete modifier values', fu
     'intersect threshold modes compete' => ['<div wire:intersect.half.full="load"></div>'],
     'sort group name missing' => ['<ul wire:sort.group="reorder"></ul>'],
     'duplicate stream selector misses initialization' => ['<span wire:stream.replace.replace="answer"></span>'],
+    'duplicate navigate transition misses exact selector' => ['<header wire:transition.navigate.navigate></header>'],
 ]);
 
 it('reports unsupported built-in directive variants and empty intersect actions', function (string $source): void {
