@@ -8,6 +8,7 @@ use Forte\Ast\DirectiveBlockNode;
 use Forte\Ast\DirectiveNode;
 use Forte\Ast\Document\Document;
 use Forte\Ast\Elements\ElementNode;
+use Forte\Ast\Node;
 use Forte\Sheath\Results\Severity;
 use Forte\Sheath\Rules\AbstractRule;
 use Forte\Sheath\Rules\Concerns\TraversesRenderedTree;
@@ -42,8 +43,14 @@ class NoSkipHeadingLevelsRule extends AbstractRule
         return Severity::WARNING;
     }
 
+    /** @var array<string, int> */
+    private array $predicateLastUse = [];
+
     public function check(Document $document, RuleContext $context): void
     {
+        $this->predicateLastUse = [];
+        $this->recordPredicateUses($document->children(), null);
+
         $reported = [];
         $this->walkHeadingSequence(
             $document->children(),
@@ -66,6 +73,10 @@ class NoSkipHeadingLevelsRule extends AbstractRule
         array &$reported,
     ): array {
         foreach ($nodes as $node) {
+            if ($node instanceof Node) {
+                $states = $this->forgetSettledPredicates($states, $node->startOffset());
+            }
+
             if ($node instanceof ElementNode) {
                 if ($node->isTag('template')) {
                     if (ReactiveAttributeSemantics::isLocalTemplateRenderer($node)) {
@@ -308,6 +319,87 @@ class NoSkipHeadingLevelsRule extends AbstractRule
         }
 
         return $outcomes;
+    }
+
+    /**
+     * @param  iterable<mixed>  $nodes
+     */
+    private function recordPredicateUses(iterable $nodes, ?int $loopEnd): void
+    {
+        foreach ($nodes as $node) {
+            if (! $node instanceof Node) {
+                continue;
+            }
+
+            // The walk revisits loop bodies, so a use inside a loop must stay
+            // live until the outermost loop ends or a second pass reads a
+            // forgotten predicate.
+            $childLoopEnd = $loopEnd;
+
+            if ($node instanceof ElementNode) {
+                $keys = [];
+
+                if ($node->isTag('template') && ReactiveAttributeSemantics::isLocalTemplateRenderer($node)) {
+                    $keys[] = 'template:'.$node->index();
+
+                    if ($node->hasAttribute('x-for')) {
+                        $childLoopEnd ??= $this->settledAfter($node);
+                    }
+                }
+
+                foreach ($this->attributesInRenderStructure($node) as $attribute) {
+                    $constraint = ReactiveAttributeSemantics::visibilityConstraint($attribute, $node);
+                    if ($constraint !== null) {
+                        $keys[] = $constraint;
+                    }
+                }
+
+                $useEnd = $loopEnd ?? $this->settledAfter($node);
+                foreach ($keys as $key) {
+                    $this->predicateLastUse[$key] = max($this->predicateLastUse[$key] ?? 0, $useEnd);
+                }
+            }
+
+            if ($node instanceof DirectiveBlockNode
+                && in_array(strtolower($node->nameText()), ['foreach', 'for', 'while'], true)) {
+                $childLoopEnd ??= $this->settledAfter($node);
+            }
+
+            $this->recordPredicateUses($node->children(), $childLoopEnd);
+        }
+    }
+
+    private function settledAfter(Node $node): int
+    {
+        $end = $node->endOffset();
+
+        return $end < 0 ? PHP_INT_MAX : $end;
+    }
+
+    /**
+     * Without this, every independent x-show doubles the state count.
+     *
+     * @param  list<array{level: int, predicates: array<string, bool>}>  $states
+     * @return list<array{level: int, predicates: array<string, bool>}>
+     */
+    private function forgetSettledPredicates(array $states, int $position): array
+    {
+        if ($position < 0) {
+            return $states;
+        }
+
+        $changed = false;
+
+        foreach ($states as $index => $state) {
+            foreach (array_keys($state['predicates']) as $predicate) {
+                if (($this->predicateLastUse[$predicate] ?? PHP_INT_MAX) <= $position) {
+                    unset($states[$index]['predicates'][$predicate]);
+                    $changed = true;
+                }
+            }
+        }
+
+        return $changed ? $this->uniqueHeadingStates($states) : $states;
     }
 
     /**

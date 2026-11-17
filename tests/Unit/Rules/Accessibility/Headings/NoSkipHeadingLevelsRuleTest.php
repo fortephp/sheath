@@ -13,6 +13,28 @@ describe('NoSkipHeadingLevelsRule', function (): void {
             ]],
         ]);
     });
+    it('stays linear in the number of independent visibility conditions', function (): void {
+        $sections = implode('', array_map(
+            fn (int $i): string => "<div x-show=\"section{$i}\"><h2>Section {$i}</h2></div>",
+            range(1, 40),
+        ));
+
+        $this->getRuleTester()->run(new NoSkipHeadingLevelsRule, [
+            'invalid' => [[
+                'code' => "<h1>Title</h1>{$sections}<h4>End</h4>",
+                'errors' => 1,
+            ]],
+        ]);
+    });
+    it('still correlates a condition across unrelated conditions in between', function (): void {
+        $this->getRuleTester()->run(new NoSkipHeadingLevelsRule, [
+            'valid' => ['<h1>A</h1><div x-show="open"><h2>B</h2></div><div x-show="other"><p>C</p></div><div x-show="open"><h3>D</h3></div>'],
+            'invalid' => [[
+                'code' => '<h1>A</h1><div x-show="open"><h2>B</h2></div><div x-show="other"><p>C</p></div><div x-show="closed"><h3>D</h3></div>',
+                'errors' => 1,
+            ]],
+        ]);
+    });
     it('does not place captured headings in the definition-site sequence', function (): void {
         $this->getRuleTester()->run(new NoSkipHeadingLevelsRule, [
             'valid' => ['<h1>A</h1>@push("x")<h3>Captured</h3>@endpush<h2>B</h2>'],
